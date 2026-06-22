@@ -306,9 +306,9 @@ export default async function HomePage() {
             </div>
 
             {/* All addons in a single responsive grid — no prices */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="flex flex-wrap justify-center gap-4">
               {addons.map((addon: any) => (
-                <div key={addon._id} className="luxury-card group overflow-hidden flex flex-col">
+                <div key={addon._id} className="luxury-card group overflow-hidden flex flex-col w-full sm:w-[280px]">
                   {/* Image */}
                   {addon.image ? (
                     <div className="relative h-40 overflow-hidden flex-shrink-0">
