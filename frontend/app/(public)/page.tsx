@@ -293,7 +293,7 @@ export default async function HomePage() {
       {/* ADD-ONS & EXTRAS — Dynamic from Admin */}
       {addons.length > 0 && (
         <section className="py-24 px-6 bg-[#0a0a0a]">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <p className="font-display text-xs tracking-[0.4em] text-[#d4af37] uppercase mb-4">Elevate Your Experience</p>
               <h2 className="font-display text-4xl md:text-5xl font-light text-white mb-4">
@@ -301,68 +301,86 @@ export default async function HomePage() {
               </h2>
               <div className="gold-divider mb-4" />
               <p className="text-white/50 text-sm font-light max-w-xl mx-auto">
-                Customize your booth experience with our premium add-ons. Every detail counts.
+                Customize your booth experience with our premium extras. Contact us to include any add-on with your booking.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {addons.map((addon: any) => (
-                <div key={addon._id} className="luxury-card group overflow-hidden flex flex-col">
-                  {/* Image */}
-                  {addon.image && (
-                    <div className="relative h-44 overflow-hidden flex-shrink-0">
-                      <Image
-                        src={addon.image}
-                        alt={addon.name}
-                        fill className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#111]/70 to-transparent" />
-                      {addon.category && (
-                        <div className="absolute top-3 left-3 bg-[#d4af37]/20 border border-[#d4af37]/40 text-[#d4af37] text-[9px] tracking-widest uppercase px-2 py-1">
-                          {addon.category}
-                        </div>
-                      )}
+            {/* Group by category */}
+            {(() => {
+              const categories: string[] = [...new Set<string>(addons.map((a: any) => a.category as string))]
+              const catLabels: Record<string, string> = {
+                lighting: 'Lighting',
+                decor: 'Luxury Décor',
+                booth: 'Booth Extras',
+                general: 'Extras',
+                other: 'Other',
+              }
+              return categories.map((cat: any) => {
+                const catItems = addons.filter((a: any) => a.category === cat)
+                return (
+                  <div key={cat} className="mb-12">
+                    {/* Category header */}
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="h-px flex-1 bg-[#d4af37]/20" />
+                      <span className="font-display text-sm tracking-[0.3em] text-[#d4af37] uppercase">
+                        {catLabels[cat] || cat}
+                      </span>
+                      <div className="h-px flex-1 bg-[#d4af37]/20" />
                     </div>
-                  )}
 
-                  {/* Content */}
-                  <div className="p-5 flex flex-col flex-1">
-                    <h3 className="font-display text-lg text-white mb-2 leading-tight">{addon.name}</h3>
-                    <p className="text-white/50 text-xs leading-relaxed mb-4 flex-1">{addon.description}</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {catItems.map((addon: any) => (
+                        <div key={addon._id} className="luxury-card group overflow-hidden flex flex-col">
+                          {/* Image */}
+                          {addon.image ? (
+                            <div className="relative h-36 overflow-hidden flex-shrink-0">
+                              <Image
+                                src={addon.image}
+                                alt={addon.name}
+                                fill className="object-cover transition-transform duration-700 group-hover:scale-105"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-[#111]/60 to-transparent" />
+                            </div>
+                          ) : (
+                            <div className="h-36 bg-[#1a1a1a] flex items-center justify-center flex-shrink-0">
+                              <span className="text-[#d4af37]/30 text-3xl">✦</span>
+                            </div>
+                          )}
 
-                    {/* Tiers (e.g. stanchions) */}
-                    {addon.tiers && addon.tiers.length > 0 ? (
-                      <div className="space-y-1.5 mb-4">
-                        {addon.tiers.map((tier: any, i: number) => (
-                          <div key={i} className="flex items-center justify-between text-xs">
-                            <span className="text-white/50">{tier.label}</span>
-                            <span className="text-[#d4af37] font-semibold">${tier.price}</span>
+                          {/* Content — NO PRICE */}
+                          <div className="p-4 flex flex-col flex-1">
+                            <h3 className="font-display text-base text-white mb-1 leading-tight">{addon.name}</h3>
+                            {addon.description && (
+                              <p className="text-white/40 text-xs leading-relaxed">{addon.description}</p>
+                            )}
+                            {/* Tiers shown as bullet points, no price */}
+                            {addon.tiers && addon.tiers.length > 0 && (
+                              <ul className="mt-2 space-y-0.5">
+                                {addon.tiers.map((tier: any, i: number) => (
+                                  <li key={i} className="text-white/40 text-xs flex items-center gap-1.5">
+                                    <span className="text-[#d4af37]/50">·</span>
+                                    {tier.label}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
                           </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="flex items-baseline gap-1 mb-4">
-                        <span className="font-display text-2xl font-semibold gold-text">${addon.price}</span>
-                        {addon.priceLabel && (
-                          <span className="text-white/30 text-xs">{addon.priceLabel}</span>
-                        )}
-                      </div>
-                    )}
-
-                    <Link
-                      href="/booking"
-                      className="block text-center border border-[#d4af37]/40 text-[#d4af37] hover:bg-[#d4af37]/10 transition-all py-2.5 text-xs tracking-widest font-sans mt-auto"
-                    >
-                      Add to Booking
-                    </Link>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                )
+              })
+            })()}
 
-            <p className="text-center text-white/30 text-xs mt-8 tracking-wide">
-              Add-ons are selected during the booking process. Contact us for custom requests.
-            </p>
+            <div className="text-center mt-8">
+              <p className="text-white/30 text-xs mb-6 tracking-wide">
+                Add-ons are available upon request. Mention them when booking or contact us for details.
+              </p>
+              <Link href="/contact" className="border border-[#d4af37]/40 text-[#d4af37] hover:bg-[#d4af37]/10 transition-all py-3 px-8 text-xs tracking-widest font-sans inline-block">
+                Inquire About Add-Ons
+              </Link>
+            </div>
           </div>
         </section>
       )}
