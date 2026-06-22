@@ -5,7 +5,7 @@ const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
 
 async function getPricing() {
   try {
-    const res = await fetch(`${API}/pricing`, { next: { revalidate: 300 } })
+    const res = await fetch(`${API}/pricing`, { cache: 'no-store' })
     const data = await res.json()
     return data.data || []
   } catch { return [] }
@@ -13,7 +13,7 @@ async function getPricing() {
 
 async function getAddons() {
   try {
-    const res = await fetch(`${API}/addons`, { next: { revalidate: 300 } })
+    const res = await fetch(`${API}/addons`, { cache: 'no-store' })
     const data = await res.json()
     return data.data || []
   } catch { return [] }
@@ -21,7 +21,7 @@ async function getAddons() {
 
 async function getGallery() {
   try {
-    const res = await fetch(`${API}/gallery?featured=true`, { next: { revalidate: 300 } })
+    const res = await fetch(`${API}/gallery?featured=true`, { cache: 'no-store' })
     const data = await res.json()
     return (data.data || []).slice(0, 6)
   } catch { return [] }
