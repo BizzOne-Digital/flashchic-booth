@@ -41,10 +41,7 @@ export default function AboutPage() {
             </div>
             <div className="absolute -top-4 -left-4 w-20 h-20 border-l border-t border-[#d4af37]/50" />
             <div className="absolute -bottom-4 -right-4 w-20 h-20 border-r border-b border-[#d4af37]/50" />
-            <div className="absolute bottom-8 left-8 bg-[#0a0a0a]/90 border border-[#d4af37]/40 px-6 py-4">
-              <div className="font-display text-3xl gold-text font-semibold">100+</div>
-              <div className="text-white/50 text-xs tracking-widest uppercase mt-1">Events Captured</div>
-            </div>
+
           </div>
 
           <div>

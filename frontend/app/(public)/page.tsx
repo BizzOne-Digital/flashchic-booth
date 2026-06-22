@@ -102,7 +102,7 @@ export default async function HomePage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {pkgs.map((pkg: any) => {
-              const img = pkg.image || 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&q=80'
+              const img = pkg.image || 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=600&q=80'
               return (
                 <div key={pkg._id} className="luxury-card group overflow-hidden relative flex flex-col">
                   {pkg.featured && (
@@ -151,10 +151,7 @@ export default async function HomePage() {
             </div>
             <div className="absolute -top-4 -left-4 w-24 h-24 border-l border-t border-[#d4af37]/50" />
             <div className="absolute -bottom-4 -right-4 w-24 h-24 border-r border-b border-[#d4af37]/50" />
-            <div className="absolute bottom-8 left-8 bg-[#0a0a0a]/90 border border-[#d4af37]/40 px-6 py-4">
-              <div className="font-display text-3xl gold-text font-semibold">100+</div>
-              <div className="text-white/50 text-xs tracking-widest uppercase mt-1">Events Captured</div>
-            </div>
+
           </div>
           <div>
             <p className="font-display text-xs tracking-[0.4em] text-[#d4af37] uppercase mb-4">Our Story</p>

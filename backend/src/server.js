@@ -7,15 +7,15 @@ require('dotenv').config()
 
 const connectDB = require('./config/db')
 
-const authRoutes     = require('./routes/auth')
-const bookingRoutes  = require('./routes/bookings')
-const galleryRoutes  = require('./routes/gallery')
-const pricingRoutes  = require('./routes/pricing')
-const leadRoutes     = require('./routes/leads')
-const promoRoutes    = require('./routes/promotions')
-const paymentRoutes  = require('./routes/payments')
-const addonRoutes    = require('./routes/addons')
-const contactRoutes  = require('./routes/contact')
+const authRoutes      = require('./routes/auth')
+const bookingRoutes   = require('./routes/bookings')
+const galleryRoutes   = require('./routes/gallery')
+const pricingRoutes   = require('./routes/pricing')
+const leadRoutes      = require('./routes/leads')
+const promoRoutes     = require('./routes/promotions')
+const paymentRoutes   = require('./routes/payments')
+const addonRoutes     = require('./routes/addons')
+const contactRoutes   = require('./routes/contact')
 const dashboardRoutes = require('./routes/dashboard')
 
 const app = express()
@@ -26,62 +26,69 @@ connectDB()
 // Security
 app.use(helmet({ crossOriginResourcePolicy: false }))
 
-// Raw body for Stripe webhooks
+// Raw body for Stripe webhooks — MUST be before express.json
 app.use('/api/payments/webhook', express.raw({ type: 'application/json' }))
 
 // Body parser
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
-// CORS — allow all Vercel domains + localhost
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  process.env.FRONTEND_URL,
-].filter(Boolean)
-
+// ── CORS ──────────────────────────────────────────────────────────────────
+// Allow all origins in production (Vercel generates dynamic preview URLs)
+// Lock down with FRONTEND_URL if needed
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow no-origin requests (Postman, mobile) and vercel.app domains
+    // Allow server-to-server, Postman, mobile apps (no origin)
     if (!origin) return callback(null, true)
-    if (allowedOrigins.includes(origin)) return callback(null, true)
+    // Allow localhost dev
+    if (origin.startsWith('http://localhost')) return callback(null, true)
+    // Allow any vercel.app subdomain
     if (origin.endsWith('.vercel.app')) return callback(null, true)
-    callback(new Error('Not allowed by CORS'))
+    // Allow specific custom domain if set
+    const frontendUrl = process.env.FRONTEND_URL
+    if (frontendUrl && origin === frontendUrl) return callback(null, true)
+    // Allow all in dev
+    if (process.env.NODE_ENV !== 'production') return callback(null, true)
+    // Block others in production
+    callback(new Error(`CORS blocked: ${origin}`))
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }))
 
-// Preflight
+// Handle preflight for all routes
 app.options('*', cors())
 
 // Logging
-if (process.env.NODE_ENV === 'development') app.use(morgan('dev'))
+if (process.env.NODE_ENV !== 'production') app.use(morgan('dev'))
 
 // Rate limiting
-const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 200 })
+const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 300, standardHeaders: true, legacyHeaders: false })
 app.use('/api/', limiter)
 
-// Routes
-app.use('/api/auth',      authRoutes)
-app.use('/api/bookings',  bookingRoutes)
-app.use('/api/gallery',   galleryRoutes)
-app.use('/api/pricing',   pricingRoutes)
-app.use('/api/leads',     leadRoutes)
+// ── Routes ────────────────────────────────────────────────────────────────
+app.use('/api/auth',       authRoutes)
+app.use('/api/bookings',   bookingRoutes)
+app.use('/api/gallery',    galleryRoutes)
+app.use('/api/pricing',    pricingRoutes)
+app.use('/api/leads',      leadRoutes)
 app.use('/api/promotions', promoRoutes)
-app.use('/api/payments',  paymentRoutes)
-app.use('/api/contact',   contactRoutes)
-app.use('/api/dashboard', dashboardRoutes)
-app.use('/api/addons',    addonRoutes)
+app.use('/api/payments',   paymentRoutes)
+app.use('/api/contact',    contactRoutes)
+app.use('/api/dashboard',  dashboardRoutes)
+app.use('/api/addons',     addonRoutes)
 
 // Health check
-app.get('/api/health', (req, res) => res.json({ status: 'OK', env: process.env.NODE_ENV, time: new Date() }))
+app.get('/api/health', (req, res) => res.json({ status: 'OK', env: process.env.NODE_ENV, time: new Date().toISOString() }))
+
+// Root ping — confirms backend is alive
+app.get('/', (req, res) => res.json({ message: 'Flashchic API is running', version: '1.0.0' }))
 
 // 404
-app.use('*', (req, res) => res.status(404).json({ success: false, message: 'Route not found' }))
+app.use('*', (req, res) => res.status(404).json({ success: false, message: `Route not found: ${req.originalUrl}` }))
 
-// Error handler
+// Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack)
   res.status(err.statusCode || 500).json({
@@ -96,5 +103,4 @@ if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => console.log(`🚀 Flashchic API running on port ${PORT}`))
 }
 
-// Vercel export
 module.exports = app
