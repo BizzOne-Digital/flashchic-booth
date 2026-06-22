@@ -307,7 +307,7 @@ export default async function HomePage() {
 
             {/* Group by category */}
             {(() => {
-              const categories: string[] = [...new Set<string>(addons.map((a: any) => a.category as string))]
+              const categories: string[] = Array.from(new Set(addons.map((a: any) => a.category as string)))
               const catLabels: Record<string, string> = {
                 lighting: 'Lighting',
                 decor: 'Luxury Décor',
