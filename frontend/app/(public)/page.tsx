@@ -305,73 +305,47 @@ export default async function HomePage() {
               </p>
             </div>
 
-            {/* Group by category */}
-            {(() => {
-              const categories: string[] = Array.from(new Set(addons.map((a: any) => a.category as string)))
-              const catLabels: Record<string, string> = {
-                lighting: 'Lighting',
-                decor: 'Luxury Décor',
-                booth: 'Booth Extras',
-                general: 'Extras',
-                other: 'Other',
-              }
-              return categories.map((cat: any) => {
-                const catItems = addons.filter((a: any) => a.category === cat)
-                return (
-                  <div key={cat} className="mb-12">
-                    {/* Category header */}
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="h-px flex-1 bg-[#d4af37]/20" />
-                      <span className="font-display text-sm tracking-[0.3em] text-[#d4af37] uppercase">
-                        {catLabels[cat] || cat}
-                      </span>
-                      <div className="h-px flex-1 bg-[#d4af37]/20" />
+            {/* All addons in a single responsive grid — no prices */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {addons.map((addon: any) => (
+                <div key={addon._id} className="luxury-card group overflow-hidden flex flex-col">
+                  {/* Image */}
+                  {addon.image ? (
+                    <div className="relative h-40 overflow-hidden flex-shrink-0">
+                      <Image
+                        src={addon.image}
+                        alt={addon.name}
+                        fill className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#111]/60 to-transparent" />
                     </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                      {catItems.map((addon: any) => (
-                        <div key={addon._id} className="luxury-card group overflow-hidden flex flex-col">
-                          {/* Image */}
-                          {addon.image ? (
-                            <div className="relative h-36 overflow-hidden flex-shrink-0">
-                              <Image
-                                src={addon.image}
-                                alt={addon.name}
-                                fill className="object-cover transition-transform duration-700 group-hover:scale-105"
-                              />
-                              <div className="absolute inset-0 bg-gradient-to-t from-[#111]/60 to-transparent" />
-                            </div>
-                          ) : (
-                            <div className="h-36 bg-[#1a1a1a] flex items-center justify-center flex-shrink-0">
-                              <span className="text-[#d4af37]/30 text-3xl">✦</span>
-                            </div>
-                          )}
-
-                          {/* Content — NO PRICE */}
-                          <div className="p-4 flex flex-col flex-1">
-                            <h3 className="font-display text-base text-white mb-1 leading-tight">{addon.name}</h3>
-                            {addon.description && (
-                              <p className="text-white/40 text-xs leading-relaxed">{addon.description}</p>
-                            )}
-                            {/* Tiers shown as bullet points, no price */}
-                            {addon.tiers && addon.tiers.length > 0 && (
-                              <ul className="mt-2 space-y-0.5">
-                                {addon.tiers.map((tier: any, i: number) => (
-                                  <li key={i} className="text-white/40 text-xs flex items-center gap-1.5">
-                                    <span className="text-[#d4af37]/50">·</span>
-                                    {tier.label}
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+                  ) : (
+                    <div className="h-40 bg-[#1a1a1a] flex items-center justify-center flex-shrink-0">
+                      <span className="text-[#d4af37]/30 text-3xl">✦</span>
                     </div>
+                  )}
+
+                  {/* Content — NO PRICE */}
+                  <div className="p-4 flex flex-col flex-1">
+                    <h3 className="font-display text-base text-white mb-1 leading-tight">{addon.name}</h3>
+                    {addon.description && (
+                      <p className="text-white/40 text-xs leading-relaxed">{addon.description}</p>
+                    )}
+                    {/* Tiers as bullet list, no price */}
+                    {addon.tiers && addon.tiers.length > 0 && (
+                      <ul className="mt-2 space-y-0.5">
+                        {addon.tiers.map((tier: any, i: number) => (
+                          <li key={i} className="text-white/40 text-xs flex items-center gap-1.5">
+                            <span className="text-[#d4af37]/50">·</span>
+                            {tier.label}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
-                )
-              })
-            })()}
+                </div>
+              ))}
+            </div>
 
             <div className="text-center mt-8">
               <p className="text-white/30 text-xs mb-6 tracking-wide">
