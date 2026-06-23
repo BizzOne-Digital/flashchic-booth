@@ -146,7 +146,7 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className="relative">
             <div className="relative h-[500px] overflow-hidden">
-              <Image src="/our.png" alt="Flashchic setup" fill className="object-cover" />
+              <Image src="/newimg2.png" alt="Flashchic setup" fill className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d]/60 to-transparent" />
             </div>
             <div className="absolute -top-4 -left-4 w-24 h-24 border-l border-t border-[#d4af37]/50" />
