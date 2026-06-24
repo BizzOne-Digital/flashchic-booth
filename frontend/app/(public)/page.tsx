@@ -251,6 +251,66 @@ export default async function HomePage() {
         </section>
     
       )}
+      {/* ADD-ONS & EXTRAS — Dynamic from Admin */}
+      {addons.length > 0 && (
+        <section className="py-24 px-6 bg-[#0a0a0a]">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <p className="font-display text-xs tracking-[0.4em] text-[#d4af37] uppercase mb-4">Elevate Your Experience</p>
+              <h2 className="font-display text-4xl md:text-5xl font-light text-white mb-4">
+                Add-Ons & <span className="gold-text font-semibold">Extras</span>
+              </h2>
+              <div className="gold-divider mb-4" />
+              <p className="text-white/50 text-sm font-light max-w-xl mx-auto">
+                Customize your booth experience with our premium extras. Contact us to include any add-on with your booking.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-4">
+              {addons.map((addon: any) => (
+                <div key={addon._id} className="luxury-card group overflow-hidden flex flex-col w-full sm:w-[280px]">
+                  {addon.image ? (
+                    <div className="relative h-40 overflow-hidden flex-shrink-0">
+                      <Image src={addon.image} alt={addon.name} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#111]/60 to-transparent" />
+                    </div>
+                  ) : (
+                    <div className="h-40 bg-[#1a1a1a] flex items-center justify-center flex-shrink-0">
+                      <span className="text-[#d4af37]/30 text-3xl">✦</span>
+                    </div>
+                  )}
+                  <div className="p-4 flex flex-col flex-1">
+                    <h3 className="font-display text-base text-white mb-1 leading-tight">{addon.name}</h3>
+                    {addon.description && (
+                      <p className="text-white/40 text-xs leading-relaxed">{addon.description}</p>
+                    )}
+                    {addon.tiers && addon.tiers.length > 0 && (
+                      <ul className="mt-2 space-y-0.5">
+                        {addon.tiers.map((tier: any, i: number) => (
+                          <li key={i} className="text-white/40 text-xs flex items-center gap-1.5">
+                            <span className="text-[#d4af37]/50">·</span>
+                            {tier.label}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="text-center mt-10">
+              <p className="text-white/30 text-xs mb-5 tracking-wide">
+                Add-ons are available upon request. Mention them when booking or contact us for details.
+              </p>
+              <Link href="/contact" className="border border-[#d4af37]/40 text-[#d4af37] hover:bg-[#d4af37]/10 transition-all py-3 px-8 text-xs tracking-widest font-sans inline-block">
+                Inquire About Add-Ons
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* CTA BANNER */}
       <section className="relative py-28 px-6 overflow-hidden">
         <div className="absolute inset-0">
