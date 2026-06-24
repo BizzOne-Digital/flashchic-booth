@@ -61,9 +61,10 @@ const sendBookingNotification = async (booking) => {
   })
 }
 
-// ── BOOKING AUTO-REPLY TO CLIENT ────────────────────────────────────────────
+// ── BOOKING AUTO-REPLY TO CLIENT (with e-transfer instructions) ─────────────
 const sendBookingConfirmation = async (booking) => {
   const t = getTransporter()
+  const depositAmt = booking.depositAmount?.toFixed(2) || '0.00'
   await t.sendMail({
     from: `"Flashchic Photobooth" <${process.env.EMAIL_FROM}>`,
     to: booking.email,
@@ -73,15 +74,29 @@ const sendBookingConfirmation = async (booking) => {
         <div style="${headerStyle}"><h1 style="${h1Style}">Flashchic Photobooth</h1></div>
         <hr style="${hrStyle}"/>
         <p style="color:#ddd">Hi ${booking.firstName},</p>
-        <p style="color:#ddd;line-height:1.7">Thank you for your booking request! We'll confirm your availability and send a deposit invoice within <strong style="${goldStyle}">24 hours</strong>.</p>
-        <div style="background:#1a1a1a;padding:16px;border-left:3px solid #d4af37;margin:20px 0">
-          <p style="${goldStyle};font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Your Request Summary</p>
-          <p style="color:#ddd;margin:4px 0">📅 Date: <strong>${booking.eventDate}</strong></p>
-          <p style="color:#ddd;margin:4px 0">📦 Package: <strong>${PKG_NAMES[booking.package]}</strong></p>
-          <p style="color:#ddd;margin:4px 0">📍 Location: <strong>${booking.eventLocation}</strong></p>
-          <p style="color:#ddd;margin:4px 0">💰 Deposit Required: <strong style="${goldStyle}">$${booking.depositAmount?.toFixed(2)} CAD</strong></p>
+        <p style="color:#ddd;line-height:1.7">Thank you for your booking request! To confirm your date, please send the <strong style="${goldStyle}">50% deposit via e-transfer</strong>.</p>
+
+        <div style="background:#1a1a1a;padding:20px;border:2px solid #d4af37;margin:20px 0;text-align:center">
+          <p style="${goldStyle};font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-bottom:12px">E-Transfer Instructions</p>
+          <table style="width:100%;border-collapse:collapse">
+            <tr><td style="padding:8px 0;color:#888;font-size:11px;text-transform:uppercase;letter-spacing:1px;width:40%">Step 1 — Amount</td><td style="padding:8px 0;color:#d4af37;font-size:20px;font-weight:bold">$${depositAmt} CAD</td></tr>
+            <tr><td style="padding:8px 0;color:#888;font-size:11px;text-transform:uppercase;letter-spacing:1px">Step 2 — Send to</td><td style="padding:8px 0;color:#d4af37;font-size:16px;font-weight:bold">${process.env.EMAIL_FROM}</td></tr>
+            <tr><td style="padding:8px 0;color:#888;font-size:11px;text-transform:uppercase;letter-spacing:1px">Step 3 — Message</td><td style="padding:8px 0;color:#fff">${booking.firstName} ${booking.lastName} — ${booking.eventDate}</td></tr>
+          </table>
         </div>
-        <p style="color:#ddd;line-height:1.7">Questions? Call/text: <a href="tel:5148318409" style="${goldStyle};font-weight:bold">(514) 831-8409</a></p>
+
+        <div style="background:#1a1a1a;padding:16px;border-left:3px solid #d4af37;margin:20px 0">
+          <p style="${goldStyle};font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Your Booking Summary</p>
+          <p style="color:#ddd;margin:4px 0">📅 Date: <strong>${booking.eventDate}</strong></p>
+          <p style="color:#ddd;margin:4px 0">📦 Package: <strong>${PKG_NAMES[booking.package] || booking.package}</strong></p>
+          <p style="color:#ddd;margin:4px 0">📍 Location: <strong>${booking.eventLocation}</strong></p>
+          <p style="color:#ddd;margin:4px 0">💰 Total: <strong style="${goldStyle}">$${booking.total?.toFixed(2)} CAD</strong></p>
+          <p style="color:#ddd;margin:4px 0">💳 Deposit Due Now: <strong style="${goldStyle}">$${depositAmt} CAD</strong></p>
+          <p style="color:#ddd;margin:4px 0">📆 Balance Due: <strong>15 days before event</strong></p>
+        </div>
+
+        <p style="color:#ddd;line-height:1.7">Once your e-transfer is received, we will confirm your booking within 24 hours.</p>
+        <p style="color:#ddd;line-height:1.7;margin-top:10px">Questions? Call/text: <a href="tel:5148318409" style="${goldStyle};font-weight:bold">(514) 831-8409</a></p>
         <hr style="${hrStyle}"/>
         <p style="color:#555;font-size:11px;text-align:center">Flashchic Photobooth · Laval, Québec · <a href="https://instagram.com/flashchicphotobooth" style="${goldStyle}">@flashchicphotobooth</a></p>
       </div>`,
