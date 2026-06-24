@@ -50,7 +50,10 @@ export default async function HomePage() {
       {/* HERO */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <Image src="/herobg.png" alt="Luxury event photobooth" fill className="object-cover" priority />
+          {/* Desktop image */}
+          <Image src="/herobg.png" alt="Luxury event photobooth" fill className="object-cover hidden sm:block" priority />
+          {/* Mobile image */}
+          <Image src="/heromobile.png" alt="Luxury event photobooth" fill className="object-cover block sm:hidden" priority />
           <div className="absolute inset-0 hero-overlay" />
           <div className="absolute inset-0 bg-[#0a0a0a]/40" />
         </div>
@@ -244,7 +247,7 @@ export default async function HomePage() {
             </div>
             <div className="text-center mt-12">
               <Link href="/gallery" className="btn-gold px-8 py-3 text-xs tracking-widest font-semibold inline-block w-full sm:w-auto">
-                View Gallery
+                View Full Gallery
               </Link>
             </div>
           </div>
