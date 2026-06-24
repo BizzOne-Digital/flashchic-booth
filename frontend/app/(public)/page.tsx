@@ -244,7 +244,7 @@ export default async function HomePage() {
             </div>
             <div className="text-center mt-12">
               <Link href="/gallery" className="btn-gold px-8 py-3 text-xs tracking-widest font-semibold inline-block w-full sm:w-auto">
-                View Full Gallery
+                View Gallery
               </Link>
             </div>
           </div>
