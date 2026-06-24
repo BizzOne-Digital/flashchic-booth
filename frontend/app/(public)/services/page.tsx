@@ -29,7 +29,7 @@ const FALLBACK = [
 
 async function getServices() {
   try {
-    const res = await fetch(`${API}/pricing`, { next: { revalidate: 300 } })
+    const res = await fetch(`${API}/pricing`, { cache: 'no-store' })
     const data = await res.json()
     return data.data?.length > 0 ? data.data : FALLBACK
   } catch {
@@ -100,10 +100,7 @@ export default async function ServicesPage() {
                     {service.tagline || 'Premium Experience'}
                   </p>
                   <h2 className="font-display text-4xl md:text-5xl font-light text-white mb-4">{service.name}</h2>
-                  <div className="flex items-baseline gap-1 mb-6">
-                    <span className="font-display text-3xl gold-text font-semibold">${service.price}</span>
-                    <span className="text-white/40 text-sm">{service.unit || '/hr'} · {service.minimum || 2}hr minimum</span>
-                  </div>
+
 
                   <p className="text-white/60 leading-relaxed mb-8 font-light">
                     {service.description}

@@ -116,10 +116,7 @@ export default async function HomePage() {
                     </div>
                   </div>
                   <div className="p-6 flex flex-col flex-1">
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="font-display text-xl font-semibold gold-text">${pkg.price}{pkg.unit || '/hr'}</span>
-                      <span className="text-white/30 text-xs font-sans tracking-widest uppercase">{pkg.minimum || 2}hr min</span>
-                    </div>
+
                     <p className="text-white/60 text-sm leading-relaxed mb-5 font-light">{pkg.tagline || pkg.description}</p>
                     <ul className="space-y-2 mb-6 flex-1">
                       {(pkg.features || []).slice(0, 5).map((feat: string) => (
@@ -146,7 +143,7 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className="relative">
             <div className="relative h-[500px] overflow-hidden">
-              <Image src="/newimg2.png" alt="Flashchic setup" fill className="object-cover" />
+              <Image src="/our.png" alt="Flashchic setup" fill className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d]/60 to-transparent" />
             </div>
             <div className="absolute -top-4 -left-4 w-24 h-24 border-l border-t border-[#d4af37]/50" />
