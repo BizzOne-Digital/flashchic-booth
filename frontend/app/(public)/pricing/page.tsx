@@ -31,7 +31,6 @@ export default async function PricingPage() {
     <>
       <section className="relative pt-40 pb-20 px-6">
         <div className="absolute inset-0">
-          <Image src="https://images.unsplash.com/photo-1558636508-e0969431c544?w=1800&q=80" alt="Pricing" fill className="object-cover" />
           <div className="absolute inset-0 bg-[#0a0a0a]/82" />
         </div>
         <div className="relative z-10 max-w-4xl mx-auto text-center">
