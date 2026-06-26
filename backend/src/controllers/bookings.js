@@ -2,19 +2,18 @@ const asyncHandler = require('express-async-handler')
 const Booking = require('../models/Booking')
 const { sendBookingNotification, sendBookingConfirmation } = require('../utils/email')
 
-const RATES = { photobooth: 150, videobooth: 150, combo: 250 }
 const MIN_HOURS = { photobooth: 2, videobooth: 2, combo: 3 }
 const TAX_RATE = 0.15
 
-// Calculate financials
-const calcPrice = (pkg, hours, discountAmount = 0) => {
-  const rate = RATES[pkg] || 150
-  const bookedHours = Math.max(hours || MIN_HOURS[pkg], MIN_HOURS[pkg])
-  const subtotal = rate * bookedHours - discountAmount
+// Calculate financials — uses rate from request (live DB price) or fallback
+const calcPrice = (pkg, hours, hourlyRate, discountAmount = 0) => {
+  const minH = MIN_HOURS[pkg] || 2
+  const bookedHours = Math.max(hours || minH, minH)
+  const subtotal = +(hourlyRate * bookedHours - discountAmount).toFixed(2)
   const tax = +(subtotal * TAX_RATE).toFixed(2)
   const total = +(subtotal + tax).toFixed(2)
   const deposit = +(total * 0.5).toFixed(2)
-  return { hourlyRate: rate, subtotal, tax, total, depositAmount: deposit }
+  return { hourlyRate, subtotal, tax, total, depositAmount: deposit }
 }
 
 // @desc  Create booking (public)
@@ -34,7 +33,10 @@ const createBooking = asyncHandler(async (req, res) => {
       $or: [{ maxUses: 0 }, { $expr: { $lt: ['$usedCount', '$maxUses'] } }],
     })
     if (promo) {
-      const subtotal = RATES[pkg] * (hours || MIN_HOURS[pkg])
+      const Pricing = require('../models/Pricing')
+      const pricingDoc = await Pricing.findOne({ slug: pkg, active: true })
+      const liveRatePromo = pricingDoc?.price || (pkg === 'combo' ? 200 : 85)
+      const subtotal = liveRatePromo * Math.max(hours || MIN_HOURS[pkg], MIN_HOURS[pkg])
       discountAmount = promo.type === 'percent'
         ? +(subtotal * promo.value / 100).toFixed(2)
         : promo.value
@@ -42,7 +44,14 @@ const createBooking = asyncHandler(async (req, res) => {
     }
   }
 
-  const pricing = calcPrice(pkg, hours, discountAmount)
+  // Use rate from frontend (live DB price) if provided, else fetch from Pricing model
+  let liveRate = parseFloat(req.body.hourlyRate) || 0
+  if (!liveRate) {
+    const Pricing = require('../models/Pricing')
+    const pricingDoc = await Pricing.findOne({ slug: pkg, active: true })
+    liveRate = pricingDoc?.price || (pkg === 'combo' ? 200 : 85)
+  }
+  const pricing = calcPrice(pkg, hours, liveRate, discountAmount)
 
   const booking = await Booking.create({
     ...req.body,
@@ -126,7 +135,10 @@ const validatePromo = asyncHandler(async (req, res) => {
   if (promo.expiresAt && promo.expiresAt < new Date()) { res.status(400); throw new Error('Promo code expired') }
   if (promo.maxUses > 0 && promo.usedCount >= promo.maxUses) { res.status(400); throw new Error('Promo code limit reached') }
 
-  const subtotal = RATES[pkg] * Math.max(hours || MIN_HOURS[pkg], MIN_HOURS[pkg])
+  const Pricing = require('../models/Pricing')
+  const pricingDocV = await Pricing.findOne({ slug: pkg, active: true })
+  const liveRateV = pricingDocV?.price || (pkg === 'combo' ? 200 : 85)
+  const subtotal = liveRateV * Math.max(hours || MIN_HOURS[pkg], MIN_HOURS[pkg])
   const discountAmount = promo.type === 'percent'
     ? +(subtotal * promo.value / 100).toFixed(2)
     : promo.value
