@@ -5,7 +5,7 @@ const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
 
 async function getPricing() {
   try {
-    const res = await fetch(`${API}/pricing`, { next: { revalidate: 300 } })
+    const res = await fetch(`${API}/pricing`, { cache: 'no-store' })
     const data = await res.json()
     return data.data || []
   } catch { return [] }
@@ -31,6 +31,7 @@ export default async function PricingPage() {
     <>
       <section className="relative pt-40 pb-20 px-6">
         <div className="absolute inset-0">
+          <Image src="https://images.unsplash.com/photo-1558636508-e0969431c544?w=1800&q=80" alt="Pricing" fill className="object-cover" />
           <div className="absolute inset-0 bg-[#0a0a0a]/82" />
         </div>
         <div className="relative z-10 max-w-4xl mx-auto text-center">
@@ -57,7 +58,7 @@ export default async function PricingPage() {
                   <span className="text-white/40 text-sm">{pkg.unit || '/hr'}</span>
                 </div>
                 <p className="text-white/40 text-xs tracking-wider mb-2">{pkg.minimum}hr minimum</p>
-                <p className="text-white/40 text-xs mb-6">Starting from <span className="text-[#d4af37] font-semibold">${pkg.price * (pkg.minimum || 2)}</span></p>
+                <p className="text-white/40 text-xs mb-6">Starting from <span className="text-[#d4af37] font-semibold">${(pkg.price * (pkg.minimum || 2)).toFixed(0)}</span></p>
                 <ul className="space-y-2 mb-6 flex-1">
                   {pkg.features?.map((f: string) => (
                     <li key={f} className="flex items-start gap-2 text-sm text-white/70">
