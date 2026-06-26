@@ -69,7 +69,7 @@ export default function BookingPage() {
     if (step === 1 && (!form.firstName || !form.email || !form.phone)) {
       showToast('Please fill in all contact fields', 'error'); return
     }
-    if (step === 2 && (!form.package || !form.eventDate || !form.eventLocation)) {
+    if (step === 2 && (!form.package || !form.eventType || !form.eventDate || !form.eventLocation)) {
       showToast('Please fill in all event details', 'error'); return
     }
     setStep(s => s + 1)
