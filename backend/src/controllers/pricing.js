@@ -27,7 +27,11 @@ const createPricing = asyncHandler(async (req, res) => {
     imageUrl = result.secure_url
   }
 
-  const pkg = await Pricing.create({ ...req.body, image: imageUrl })
+  let eventPricing = []
+  if (req.body.eventPricing) {
+    try { eventPricing = JSON.parse(req.body.eventPricing) } catch { eventPricing = [] }
+  }
+  const pkg = await Pricing.create({ ...req.body, image: imageUrl, eventPricing })
   res.status(201).json({ success: true, data: pkg })
 })
 
@@ -42,6 +46,9 @@ const updatePricing = asyncHandler(async (req, res) => {
     updateData.image = result.secure_url
   }
 
+  if (req.body.eventPricing) {
+    try { updateData.eventPricing = JSON.parse(req.body.eventPricing) } catch { updateData.eventPricing = [] }
+  }
   const pkg = await Pricing.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true })
   if (!pkg) { res.status(404); throw new Error('Package not found') }
   res.json({ success: true, data: pkg })

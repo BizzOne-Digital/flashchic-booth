@@ -44,13 +44,19 @@ const createBooking = asyncHandler(async (req, res) => {
     }
   }
 
-  // Use rate from frontend (live DB price) if provided, else fetch from Pricing model
-  let liveRate = parseFloat(req.body.hourlyRate) || 0
-  if (!liveRate) {
-    const Pricing = require('../models/Pricing')
-    const pricingDoc = await Pricing.findOne({ slug: pkg, active: true })
-    liveRate = pricingDoc?.price || (pkg === 'combo' ? 200 : 85)
+  // Fetch live pricing from DB with event-type override support
+  const Pricing = require('../models/Pricing')
+  const pricingDoc = await Pricing.findOne({ slug: pkg, active: true })
+  let liveRate = pricingDoc?.price || (pkg === 'combo' ? 200 : 85)
+
+  // Check if this event type has a specific rate override
+  if (pricingDoc?.eventPricing?.length && req.body.eventType) {
+    const eventOverride = pricingDoc.eventPricing.find(
+      ep => ep.eventType.toLowerCase() === req.body.eventType.toLowerCase()
+    )
+    if (eventOverride) liveRate = eventOverride.rate
   }
+
   const pricing = calcPrice(pkg, hours, liveRate, discountAmount)
 
   const booking = await Booking.create({

@@ -37,8 +37,13 @@ export default function BookingPage() {
   const selectedPkg = packages.find((p: any) =>
     p.slug === form.package || p.name.toLowerCase().replace(/\s+/g, '') === form.package.replace(/\s+/g, '')
   )
-  const pkgPrice = selectedPkg?.price || 0
   const pkgMinHours = selectedPkg?.minimum || 2
+
+  // Check event-type price override
+  const eventOverride = selectedPkg?.eventPricing?.find(
+    (ep: any) => ep.eventType?.toLowerCase() === form.eventType?.toLowerCase()
+  )
+  const pkgPrice = eventOverride ? eventOverride.rate : (selectedPkg?.price || 0)
 
   const calcPricing = (price: number, minH: number, hours: number, discount = 0) => {
     const h = Math.max(hours || minH, minH)

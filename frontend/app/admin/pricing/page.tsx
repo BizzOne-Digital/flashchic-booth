@@ -4,11 +4,14 @@ import { useEffect, useState, useRef } from 'react'
 import Image from 'next/image'
 import { api } from '@/lib/api'
 
+const EVENT_TYPES = ['Birthday', 'Baby Shower', 'Corporate', 'Wedding', 'Gala', 'Graduation', 'Anniversary', 'Other']
+
 const emptyPkg = {
   name: '', slug: '', price: 150, unit: '/hr', minimum: 2,
   description: '', tagline: '', image: '',
   featured: false, active: true, order: 0,
   features: [''], notIncluded: [''],
+  eventPricing: [] as { eventType: string; rate: number }[],
 }
 
 export default function AdminPricing() {
@@ -39,6 +42,7 @@ export default function AdminPricing() {
       ...pkg,
       features: pkg.features?.length ? pkg.features : [''],
       notIncluded: pkg.notIncluded?.length ? pkg.notIncluded : [''],
+      eventPricing: pkg.eventPricing || [],
     })
     setImagePreview(pkg.image || '')
     setCreating(false)
@@ -84,6 +88,7 @@ export default function AdminPricing() {
       const notIncluded = form.notIncluded.filter(Boolean)
       features.forEach((f: string) => fd.append('features[]', f))
       notIncluded.forEach((f: string) => fd.append('notIncluded[]', f))
+      fd.append('eventPricing', JSON.stringify(form.eventPricing || []))
 
       // Image: file if selected, else keep existing URL
       if (fileRef.current?.files?.[0]) {
@@ -273,6 +278,52 @@ export default function AdminPricing() {
             </div>
           </div>
 
+          {/* Event-Type Pricing Overrides */}
+          <div className="mb-5 p-4 border border-[#d4af37]/20 bg-[#d4af37]/5">
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-xs text-[#d4af37] uppercase tracking-widest">Event-Type Price Overrides</label>
+              <button
+                type="button"
+                onClick={() => setForm((f: any) => ({ ...f, eventPricing: [...(f.eventPricing || []), { eventType: '', rate: f.price }] }))}
+                className="text-[#d4af37] text-xs hover:underline"
+              >
+                + Add Override
+              </button>
+            </div>
+            <p className="text-white/30 text-xs mb-3">Set a different rate for specific event types. Leave empty to use base price for all.</p>
+            {(form.eventPricing || []).map((ep: any, i: number) => (
+              <div key={i} className="flex gap-2 mb-2 items-center">
+                <select
+                  value={ep.eventType}
+                  onChange={e => setForm((f: any) => ({ ...f, eventPricing: f.eventPricing.map((p: any, idx: number) => idx === i ? { ...p, eventType: e.target.value } : p) }))}
+                  className="admin-input flex-1 text-sm"
+                >
+                  <option value="">Select event type</option>
+                  {EVENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+                <div className="flex items-center gap-1">
+                  <span className="text-white/40 text-sm">$</span>
+                  <input
+                    type="number"
+                    value={ep.rate}
+                    onChange={e => setForm((f: any) => ({ ...f, eventPricing: f.eventPricing.map((p: any, idx: number) => idx === i ? { ...p, rate: +e.target.value } : p) }))}
+                    className="admin-input w-24 text-sm"
+                    placeholder="Rate"
+                  />
+                  <span className="text-white/30 text-xs">/hr</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setForm((f: any) => ({ ...f, eventPricing: f.eventPricing.filter((_: any, idx: number) => idx !== i) }))}
+                  className="text-red-400/60 hover:text-red-400 px-2 text-lg"
+                >×</button>
+              </div>
+            ))}
+            {(!form.eventPricing || form.eventPricing.length === 0) && (
+              <p className="text-white/20 text-xs italic">No overrides — all events use base price (${form.price}/hr)</p>
+            )}
+          </div>
+
           {/* Toggles */}
           <div className="flex items-center gap-6 mb-6">
             <label className="flex items-center gap-2 text-white/60 text-sm cursor-pointer">
@@ -347,6 +398,15 @@ export default function AdminPricing() {
                       <span className="text-xs text-white/25">+{pkg.features.length - 4} more</span>
                     )}
                   </div>
+                  {pkg.eventPricing?.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {pkg.eventPricing.map((ep: any) => (
+                        <span key={ep.eventType} className="text-xs text-[#d4af37]/60 border border-[#d4af37]/20 px-2 py-0.5">
+                          {ep.eventType}: ${ep.rate}/hr
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Actions */}
